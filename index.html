@@ -1,717 +1,394 @@
+
 <!DOCTYPE html>
-
 <html lang="ru">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-
     <title>Basic Notes</title>
-
     <script src="https://cdn.tailwindcss.com"></script>
-
     <style>
-
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Raleway:wght@700;900&display=swap');
-
         
-
         :root { --accent: #00ffcc; --bg: #000; --text: #00ffcc; --card-bg: #050505; --card-border: rgba(0, 255, 204, 0.4); --brand-yellow: #ffff00; }
-
         .theme-light { --accent: #0000ff; --bg: #ffffff; --text: #000000; --card-bg: #f9f9f9; --card-border: #000000; }
-
         .theme-accessible { --accent: #000000; --bg: #ffffff; --text: #000000; --card-bg: #ffffff; --card-border: #000000; --brand-yellow: #000000; }
-
         
-
         html, body { height: 100dvh; margin: 0; background-color: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow: hidden; transition: 0.3s; display: flex; flex-direction: column; }
-
         .brand-text { color: var(--brand-yellow); font-family: 'Raleway', sans-serif; }
-
         .raleway { font-family: 'Raleway', sans-serif; }
-
         .mint-border { border: 3px solid var(--card-border); }
-
         .mint-menu { background-color: #ffff00; color: #000; transition: 0.4s ease; left: 0; transform: translateX(-100%); z-index: 60; }
-
         .drawer-open { transform: translateX(0) !important; }
-
         .header-btn { font-family: 'Raleway', sans-serif; font-size: 10px; font-weight: 900; border: 3px solid var(--card-border); padding: 5px 12px; border-radius: 6px; text-transform: uppercase; color: var(--text); }
-
         .playlist-tab { border-bottom: 4px solid transparent; opacity: 0.5; color: var(--text); white-space: nowrap; font-family: 'Raleway', sans-serif; padding-bottom: 4px; }
-
         .playlist-tab.active { border-color: var(--brand-yellow); opacity: 1; font-weight: 900; }
-
         #notesList { flex: 1; overflow-y: auto; }
-
         .no-scrollbar::-webkit-scrollbar { display: none; }
-
         .mint-textarea { background-color: var(--card-bg); border: 3px solid var(--card-border); color: var(--text); outline: none; width: 100%; resize: none; }
-
         .full-screen-modal { position: fixed; inset: 0; background: var(--bg); z-index: 100; opacity: 0; pointer-events: none; transition: 0.4s; padding: 40px; display: flex; flex-direction: column; }
-
         .full-screen-modal.active { opacity: 1; pointer-events: all; }
-
         .truncate-text { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
-
         .pinned-badge { background: var(--brand-yellow); color: #000; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 900; margin-bottom: 8px; display: inline-block; }
-
         .note-image { width: 100%; max-height: 200px; object-fit: cover; border-radius: 15px; margin-top: 10px; border: 2px solid var(--card-border); }
-
+        .action-btn { opacity: 0.6; transition: 0.2s; }
+        .action-btn:hover { opacity: 1; scale: 1.2; }
     </style>
-
 </head>
-
 <body>
 
-
-
     <header class="pt-12 px-8 pb-2 shrink-0">
-
         <div class="flex items-center justify-between mb-4">
-
             <button onclick="toggleMenu()" class="p-2 active:scale-90">
-
                 <div class="w-8 h-2 bg-[#ffff00] border border-black rounded-full mb-1.5"></div>
-
                 <div class="w-8 h-2 bg-[#ffff00] border border-black rounded-full mb-1.5"></div>
-
                 <div class="w-8 h-2 bg-[#ffff00] border border-black rounded-full"></div>
-
             </button>
-
-            <h1 id="ui-logo" class="text-3xl font-black italic brand-text">Basic Notes</h1>
-
+            <h1 id="ui-logo" class="text-3xl font-black italic brand-text uppercase">Basic Notes</h1>
         </div>
-
         <div class="flex gap-2 justify-end mb-4">
-
             <button onclick="sortNotes()" id="ui-btn-sort" class="header-btn">Time</button>
-
             <button onclick="exportNotes()" id="ui-btn-export" class="header-btn">Export</button>
-
             <button onclick="triggerImport()" id="ui-btn-import" class="header-btn">Import</button>
-
             <input type="file" id="importFile" class="hidden" accept=".json,image/*">
-
         </div>
-
         <div id="playlistTabs" class="flex gap-6 overflow-x-auto pb-2 border-b-2 border-current/20 no-scrollbar"></div>
-
     </header>
-
-
 
     <main id="notesList" class="px-8 space-y-4 py-4 no-scrollbar"></main>
 
-
-
     <div id="imagePreviewContainer" class="hidden px-8 pb-2">
-
         <div class="relative inline-block">
-
             <img id="tempImage" src="" class="h-20 w-20 object-cover rounded-xl border-2 border-[#ffff00]">
-
             <button onclick="clearTempImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs font-bold">✕</button>
-
         </div>
-
     </div>
-
-
 
     <footer class="px-8 pb-8 pt-2 shrink-0 bg-[var(--bg)]">
-
         <div class="flex justify-between text-[11px] mb-2 uppercase font-black raleway">
-
             <span id="ui-limit-label">Notes</span>
-
             <span id="ui-counter">0</span>
-
         </div>
-
         <div class="relative">
-
             <textarea id="ui-textarea" class="mint-textarea rounded-3xl p-5 h-24 text-xl font-bold"></textarea>
-
             <div class="absolute bottom-3 right-3 flex gap-2">
-
                 <button onclick="triggerImport()" class="bg-white/10 border-2 border-[var(--card-border)] w-14 h-14 rounded-2xl active:scale-90 flex items-center justify-center">
-
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-
                 </button>
-
                 <button onclick="addNote()" class="bg-[#ffff00] border-2 border-black w-14 h-14 rounded-2xl active:scale-90 flex items-center justify-center shadow-lg">
-
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="4"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-
                 </button>
-
             </div>
-
         </div>
-
     </footer>
 
-
-
     <div id="menu" class="fixed top-0 h-full w-80 mint-menu z-50 p-10 flex flex-col shadow-2xl">
-
         <div class="flex justify-between items-center mb-12">
-
             <h3 id="ui-menu-title" class="text-3xl uppercase font-black raleway">МЕНЮ</h3>
-
             <button onclick="toggleMenu()" class="text-4xl text-black font-black">✕</button>
-
         </div>
-
         <nav class="flex-1 space-y-8 font-black text-2xl uppercase overflow-y-auto no-scrollbar raleway text-black">
-
             <div>
-
                 <p id="ui-playlist-label" class="text-xs mb-4 opacity-70">Playlists</p>
-
                 <div id="menuPlaylists" class="space-y-4"></div>
-
                 <button onclick="showDialog('playlist')" id="ui-add-playlist" class="mt-6 text-sm border-4 border-black px-6 py-2 rounded-xl active:bg-black active:text-white">+ NEW</button>
-
             </div>
-
             <button onclick="toggleSettings()" id="ui-btn-settings-menu" class="w-full text-left py-3 border-b-4 border-black/20">Settings</button>
-
         </nav>
-
         <div class="mt-auto pt-6 flex justify-between items-center text-sm font-black raleway text-black">
-
-            <div>v 2.1.0</div>
-
+            <div>v 2.2.0</div>
             <button onclick="toggleContact()" id="ui-btn-team" class="bg-black text-white px-6 py-3 rounded-full uppercase">TEAM</button>
-
         </div>
-
     </div>
-
-
 
     <div id="settingsScreen" class="full-screen-modal">
-
         <h2 id="ui-settings-title" class="brand-text font-black text-4xl italic mb-12 uppercase">Settings</h2>
-
         <div class="space-y-10 border-l-8 border-current pl-10 raleway text-[var(--text)]">
-
             <div class="flex gap-4">
-
                 <button onclick="setLanguage('ru')" class="px-8 py-3 border-4 border-current rounded-xl font-black">RU</button>
-
                 <button onclick="setLanguage('en')" class="px-8 py-3 border-4 border-current rounded-xl font-black">EN</button>
-
             </div>
-
             <div class="flex flex-col gap-4">
-
                 <button onclick="setTheme('dark')" id="ui-theme-dark" class="text-left px-6 py-4 border-4 border-current rounded-xl uppercase font-black">Dark</button>
-
                 <button onclick="setTheme('light')" id="ui-theme-light" class="text-left px-6 py-4 border-4 border-current rounded-xl uppercase font-black">Light</button>
-
                 <button onclick="setTheme('accessible')" id="ui-theme-acc" class="text-left px-6 py-4 border-4 border-current rounded-xl uppercase font-black">HIGH CONTRAST</button>
-
             </div>
-
         </div>
-
         <button onclick="toggleSettings()" id="ui-settings-done" class="mt-auto border-4 border-current text-[var(--text)] py-6 rounded-3xl font-black uppercase raleway text-2xl">Done</button>
-
     </div>
-
-
 
     <div id="contactScreen" class="full-screen-modal">
-
         <h2 id="ui-team-title" class="brand-text font-black text-4xl italic mb-12 uppercase">Team</h2>
-
         <div class="space-y-8 border-l-8 border-current pl-10 mb-10 text-[var(--text)]">
-
             <p id="member-1" class="font-black text-3xl raleway"></p>
-
             <p id="member-2" class="font-black text-3xl raleway"></p>
-
         </div>
-
         <button onclick="toggleContact()" id="ui-team-close" class="mt-auto border-4 border-current text-[var(--text)] py-6 rounded-3xl font-black uppercase raleway text-2xl">Close</button>
-
     </div>
-
-
 
     <div id="customDialog" class="full-screen-modal justify-center items-center bg-black/90">
-
         <div class="w-full max-w-sm p-8 border-8 border-current rounded-3xl bg-[var(--bg)] text-[var(--text)]">
-
             <h2 id="dialogTitle" class="text-3xl font-black mb-6 uppercase text-center"></h2>
-
             <input type="text" id="dialogInput" class="w-full bg-transparent border-b-8 border-current mb-8 p-2 outline-none text-2xl font-black hidden">
-
             <p id="dialogDesc" class="mb-8 font-black text-xl text-center"></p>
-
             <div class="flex flex-col gap-4 raleway">
-
                 <button id="dialogConfirmBtn" class="w-full bg-[#ffff00] text-black py-5 rounded-2xl font-black uppercase text-xl">OK</button>
-
                 <button onclick="closeDialog()" id="ui-dialog-cancel" class="w-full border-4 border-current py-3 rounded-2xl font-black uppercase"></button>
-
             </div>
-
         </div>
-
     </div>
-
-
 
     <div id="viewNoteModal" class="full-screen-modal">
-
         <div class="flex-1 overflow-y-auto no-scrollbar pt-10">
-
             <img id="fullNoteImage" src="" class="w-full rounded-3xl mb-6 hidden border-4 border-[#ffff00]">
-
             <p id="fullNoteText" class="text-3xl font-black leading-tight whitespace-pre-wrap text-[var(--text)]"></p>
-
         </div>
-
         <button onclick="closeNoteView()" id="ui-btn-close-view" class="mt-8 border-4 border-current text-[var(--text)] py-6 rounded-3xl font-black uppercase raleway text-2xl">Back</button>
-
     </div>
-
-
 
     <div id="overlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/80 hidden z-40 backdrop-blur-md"></div>
 
-
-
     <script>
-
         let data = JSON.parse(localStorage.getItem('basic_notes_v6')) || {
-
             playlists: [{id: 1, title: 'Моё'}],
-
             notes: [],
-
             currentPlaylistId: 1,
-
             sortAsc: false,
-
             lang: 'ru',
-
             theme: 'dark'
-
         };
-
-
 
         let tempImageData = null;
 
-
-
         const translations = {
-
             ru: {
-
                 logo: "Basic Notes", welcome: "ПУСТО", placeholder: "ТЕКСТ...",
-
                 menu: "МЕНЮ", settings: "НАСТРОЙКИ", team: "КОМАНДА", close: "ЗАКРЫТЬ",
-
                 addPlaylist: "+ Плейлист", playlistLabel: "ПЛЕЙЛИСТЫ",
-
                 sort: "Время", export: "Экспорт", import: "Импорт",
-
                 cancel: "ОТМЕНА", back: "НАЗАД", done: "ГОТОВО",
-
                 tDark: "ТЕМНАЯ", tLight: "СВЕТЛАЯ", tAcc: "КОНТРАСТНАЯ",
-
                 confirmNoteDel: "Удалить?", confirmPListDel: "Удалить плейлист?",
-
                 newPListTitle: "Название", newPListPlace: "...",
-
                 create: "Создать", counter: "Заметки",
-
                 m1: "Александров Арсений", m2: "Малышев Егор"
-
             },
-
             en: {
-
                 logo: "Basic Notes", welcome: "EMPTY", placeholder: "TYPE...",
-
                 menu: "MENU", settings: "SETTINGS", team: "TEAM", close: "CLOSE",
-
                 addPlaylist: "+ Playlist", playlistLabel: "PLAYLISTS",
-
                 sort: "Time", export: "Export", import: "Import",
-
                 cancel: "CANCEL", back: "BACK", done: "DONE",
-
                 tDark: "DARK", tLight: "LIGHT", tAcc: "HIGH CONTRAST",
-
                 confirmNoteDel: "Delete?", confirmPListDel: "Delete playlist?",
-
                 newPListTitle: "Title", newPListPlace: "...",
-
                 create: "Create", counter: "Notes",
-
                 m1: "Arseniy Alexandrov", m2: "Egor Malyshev"
-
             }
-
         };
-
-
 
         function save() { localStorage.setItem('basic_notes_v6', JSON.stringify(data)); render(); }
 
-
-
         function setLanguage(lang) {
-
             data.lang = lang;
-
             const t = translations[lang];
-
             document.getElementById('ui-logo').innerText = t.logo;
-
             document.getElementById('ui-textarea').placeholder = t.placeholder;
-
             document.getElementById('ui-menu-title').innerText = t.menu;
-
             document.getElementById('ui-settings-title').innerText = t.settings;
-
             document.getElementById('ui-btn-settings-menu').innerText = t.settings;
-
             document.getElementById('ui-btn-team').innerText = t.team;
-
             document.getElementById('ui-add-playlist').innerText = t.addPlaylist;
-
             document.getElementById('ui-playlist-label').innerText = t.playlistLabel;
-
             document.getElementById('ui-btn-sort').innerText = t.sort;
-
             document.getElementById('ui-btn-export').innerText = t.export;
-
             document.getElementById('ui-btn-import').innerText = t.import;
-
             document.getElementById('ui-btn-close-view').innerText = t.back;
-
             document.getElementById('ui-settings-done').innerText = t.done;
-
             document.getElementById('ui-theme-dark').innerText = t.tDark;
-
             document.getElementById('ui-theme-light').innerText = t.tLight;
-
             document.getElementById('ui-theme-acc').innerText = t.tAcc;
-
             document.getElementById('ui-team-title').innerText = t.team;
-
             document.getElementById('ui-team-close').innerText = t.close;
-
             document.getElementById('ui-limit-label').innerText = t.counter;
-
             document.getElementById('member-1').innerText = t.m1;
-
             document.getElementById('member-2').innerText = t.m2;
-
             document.getElementById('ui-dialog-cancel').innerText = t.cancel;
-
             save();
-
         }
-
-
 
         function setTheme(theme) { data.theme = theme; save(); }
 
-
-
         function render() {
-
             document.body.className = 'theme-' + data.theme;
-
             const t = translations[data.lang];
-
             const filtered = data.notes.filter(n => n.pid === data.currentPlaylistId);
-
             
-
-            // Сортировка: закрепленные всегда сверху
-
-            filtered.sort((a, b) => {
-
-                if (a.pinned && !b.pinned) return -1;
-
-                if (!a.pinned && b.pinned) return 1;
-
-                return data.sortAsc ? new Date(a.date) - new Date(b.date) : new Date(b.date) - new Date(a.date);
-
-            });
-
-
+            // Сортировка по умолчанию (если не перемещали вручную)
+            if (!data.sortAsc) {
+                filtered.sort((a, b) => (a.pinned === b.pinned) ? 0 : a.pinned ? -1 : 1);
+            }
 
             document.getElementById('playlistTabs').innerHTML = data.playlists.map(p => `
-
                 <button onclick="data.currentPlaylistId=${p.id}; save();" class="playlist-tab uppercase text-sm ${data.currentPlaylistId === p.id ? 'active' : ''}">${p.title}</button>
-
             `).join('');
-
-
 
             document.getElementById('ui-counter').innerText = filtered.length;
 
-
-
             const list = document.getElementById('notesList');
-
             if(!filtered.length) {
-
                 list.innerHTML = `<div class="h-full flex items-center justify-center opacity-40 font-black uppercase text-4xl raleway">${t.welcome}</div>`;
-
             } else {
-
                 list.innerHTML = filtered.map((n, i) => `
-
                     <div class="p-6 rounded-[40px] mint-border bg-[var(--card-bg)] relative">
-
+                        <div class="absolute top-6 right-6 flex gap-3">
+                             <button onclick="editNote(${n.id})" class="action-btn text-lg">✏️</button>
+                        </div>
                         ${n.pinned ? '<span class="pinned-badge">PINNED</span>' : ''}
-
                         <div onclick="openNote(${n.id})">
-
                             <div class="w-14 h-2 bg-[#ffff00] mb-4 rounded-full border border-black/20"></div>
-
                             <p class="text-xl font-black leading-tight truncate-text">${n.text}</p>
-
                             ${n.image ? `<img src="${n.image}" class="note-image">` : ''}
-
                         </div>
-
                         <div class="flex justify-between items-center mt-4 pt-4 border-t border-white/10 font-black">
-
-                            <button onclick="togglePin(${n.id})" class="text-xl">${n.pinned ? '📍' : '📌'}</button>
-
-                            <button onclick="showDialog('delNote', ${n.id})" class="text-2xl">✕</button>
-
+                            <div class="flex gap-4 items-center">
+                                <button onclick="togglePin(${n.id})" class="text-xl action-btn">${n.pinned ? '📍' : '📌'}</button>
+                                <button onclick="moveNote(${i}, -1)" class="action-btn text-xs border-2 border-current px-2 rounded">↑</button>
+                                <button onclick="moveNote(${i}, 1)" class="action-btn text-xs border-2 border-current px-2 rounded">↓</button>
+                            </div>
+                            <button onclick="showDialog('delNote', ${n.id})" class="text-2xl action-btn">✕</button>
                         </div>
-
                     </div>
-
                 `).join('');
-
             }
-
-
 
             document.getElementById('menuPlaylists').innerHTML = data.playlists.map(p => `
-
                 <div class="flex justify-between items-center p-4 rounded-2xl ${data.currentPlaylistId === p.id ? 'bg-black/20' : ''} border-2 border-black/10">
-
                     <span onclick="data.currentPlaylistId=${p.id}; toggleMenu(); save();" class="flex-1 truncate">${p.title}</span>
-
                     <button onclick="event.stopPropagation(); showDialog('delPlaylist', ${p.id})" class="ml-4 font-black text-2xl">✕</button>
-
                 </div>
-
             `).join('');
-
         }
-
-
 
         function addNote() {
-
             const el = document.getElementById('ui-textarea');
-
             if(!el.value.trim() && !tempImageData) return;
-
             data.notes.push({ 
-
                 id: Date.now(), 
-
                 pid: data.currentPlaylistId, 
-
                 text: el.value, 
-
                 image: tempImageData,
-
                 pinned: false,
-
                 date: new Date() 
-
             });
-
             el.value = ''; 
-
             clearTempImage();
-
             save();
-
             document.getElementById('notesList').scrollTo({top: 99999, behavior: 'smooth'});
-
         }
 
+        function editNote(id) {
+            const n = data.notes.find(x => x.id === id);
+            if(n) {
+                const el = document.getElementById('ui-textarea');
+                el.value = n.text;
+                if(n.image) {
+                    tempImageData = n.image;
+                    document.getElementById('tempImage').src = tempImageData;
+                    document.getElementById('imagePreviewContainer').classList.remove('hidden');
+                }
+                data.notes = data.notes.filter(x => x.id !== id);
+                el.focus();
+                save();
+            }
+        }
 
+        function moveNote(index, direction) {
+            const filtered = data.notes.filter(n => n.pid === data.currentPlaylistId);
+            const targetIndex = index + direction;
+            if (targetIndex < 0 || targetIndex >= filtered.length) return;
+            
+            const noteToMove = filtered[index];
+            const otherNote = filtered[targetIndex];
+            
+            // Находим реальные индексы в основном массиве
+            const realIdx1 = data.notes.indexOf(noteToMove);
+            const realIdx2 = data.notes.indexOf(otherNote);
+            
+            [data.notes[realIdx1], data.notes[realIdx2]] = [data.notes[realIdx2], data.notes[realIdx1]];
+            save();
+        }
 
         function togglePin(id) {
-
             const n = data.notes.find(x => x.id === id);
-
             if(n) n.pinned = !n.pinned;
-
             save();
-
         }
-
-
-
-        // Умный импорт (JSON или Картинка)
 
         document.getElementById('importFile').addEventListener('change', function(e) {
-
             const file = e.target.files[0];
-
             if (!file) return;
-
             const reader = new FileReader();
-
-            
-
             if (file.type.startsWith('image/')) {
-
                 reader.onload = (event) => {
-
                     tempImageData = event.target.result;
-
                     document.getElementById('tempImage').src = tempImageData;
-
                     document.getElementById('imagePreviewContainer').classList.remove('hidden');
-
                 };
-
                 reader.readAsDataURL(file);
-
             } else {
-
                 reader.onload = (event) => {
-
                     try {
-
                         const imported = JSON.parse(event.target.result);
-
                         if (imported.notes) {
-
                             data.notes = [...data.notes, ...imported.notes];
-
                             save();
-
                         }
-
                     } catch (err) { alert("Error!"); }
-
                 };
-
                 reader.readAsText(file);
-
             }
-
         });
 
-
-
         function clearTempImage() {
-
             tempImageData = null;
-
             document.getElementById('imagePreviewContainer').classList.add('hidden');
-
         }
-
-
 
         function toggleMenu() { document.getElementById('menu').classList.toggle('drawer-open'); document.getElementById('overlay').classList.toggle('hidden'); }
-
         function toggleSettings() { document.getElementById('settingsScreen').classList.toggle('active'); }
-
         function toggleContact() { document.getElementById('contactScreen').classList.toggle('active'); }
-
-        
-
         function openNote(id) { 
-
             const n = data.notes.find(x => x.id === id);
-
             document.getElementById('fullNoteText').innerText = n.text;
-
             const img = document.getElementById('fullNoteImage');
-
             if(n.image) { img.src = n.image; img.classList.remove('hidden'); }
-
             else { img.classList.add('hidden'); }
-
             document.getElementById('viewNoteModal').classList.add('active'); 
-
         }
-
-
-
         function closeNoteView() { document.getElementById('viewNoteModal').classList.remove('active'); }
-
         function closeDialog() { document.getElementById('customDialog').classList.remove('active'); }
-
         function triggerImport() { document.getElementById('importFile').click(); }
-
-        function sortNotes() { data.notes.sort((a,b) => data.sortAsc ? new Date(a.date)-new Date(b.date) : new Date(b.date)-new Date(a.date)); data.sortAsc = !data.sortAsc; save(); }
-
-        
-
+        function sortNotes() { data.sortAsc = !data.sortAsc; save(); }
         function exportNotes() {
-
             const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
-
             const url = URL.createObjectURL(blob);
-
             const a = document.createElement('a'); a.href = url; a.download = 'notes_backup.json'; a.click();
-
         }
-
-
 
         function showDialog(type, id = null) {
-
             const t = translations[data.lang];
-
             const m = document.getElementById('customDialog');
-
             const i = document.getElementById('dialogInput');
-
             const d = document.getElementById('dialogDesc');
-
             const b = document.getElementById('dialogConfirmBtn');
-
             m.classList.add('active'); i.classList.add('hidden'); d.classList.remove('hidden');
-
             document.getElementById('dialogTitle').innerText = (type === 'playlist' ? t.newPListTitle : (type === 'delNote' ? t.confirmNoteDel : t.confirmPListDel));
-
             if(type === 'playlist') { i.classList.remove('hidden'); d.classList.add('hidden'); b.onclick = () => { if(i.value.trim()){ const nid = Date.now(); data.playlists.push({id:nid, title:i.value}); data.currentPlaylistId=nid; closeDialog(); save(); } }; }
-
             else { b.onclick = () => { if(type === 'delNote') data.notes = data.notes.filter(n => n.id !== id); else { data.playlists = data.playlists.filter(p => p.id !== id); data.notes = data.notes.filter(n => n.pid !== id); if(data.currentPlaylistId === id) data.currentPlaylistId = data.playlists[0]?.id || 0; } closeDialog(); save(); }; }
-
         }
 
-
-
         setLanguage(data.lang);
-
         render();
-
     </script>
-
 </body>
-
 </html>
