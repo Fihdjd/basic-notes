@@ -1,0 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Raleway:wght@700;900&display=swap');
+
+:root { 
+    --accent: #00ffcc; 
+    --bg: #000; 
+    --text: #00ffcc; 
+    --card-bg: #050505; 
+    --card-border: rgba(0, 255, 204, 0.4); 
+    --brand-yellow: #ffff00; 
+}
+
+.theme-light { 
+    --accent: #0000ff; 
+    --bg: #ffffff; 
+    --text: #000000; 
+    --card-bg: #f9f9f9; 
+    --card-border: #000000; 
+}
+
+.theme-accessible { 
+    --accent: #000000; 
+    --bg: #ffffff; 
+    --text: #000000; 
+    --card-bg: #ffffff; 
+    --card-border: #000000; 
+    --brand-yellow: #000000; 
+}
+
+html, body { 
+    height: 100dvh; 
+    margin: 0; 
+    background-color: var(--bg); 
+    color: var(--text); 
+    font-family: 'Inter', sans-serif; 
+    overflow: hidden; 
+    transition: 0.3s; 
+    display: flex; 
+    flex-direction: column; 
+}
+
+.brand-text { color: var(--brand-yellow); font-family: 'Raleway', sans-serif; }
+.raleway { font-family: 'Raleway', sans-serif; }
+.mint-border { border: 3px solid var(--card-border); }
+
+.mint-menu { 
+    background-color: #ffff00; 
+    color: #000; 
+    transition: 0.4s ease; 
+    left: 0; 
+    transform: translateX(-100%); 
+    z-index: 60; 
+}
+
+.drawer-open { transform: translateX(0) !important; }
+
+.header-btn { 
+    font-family: 'Raleway', sans-serif; 
+    font-size: 10px; 
+    font-weight: 900; 
+    border: 3px solid var(--card-border); 
+    padding: 5px 12px; 
+    border-radius: 6px; 
+    text-transform: uppercase; 
+    color: var(--text); 
+}
+
+.playlist-tab { 
+    border-bottom: 4px solid transparent; 
+    opacity: 0.5; 
+    color: var(--text); 
+    white-space: nowrap; 
+    font-family: 'Raleway', sans-serif; 
+    padding-bottom: 4px; 
+}
+
+.playlist-tab.active { border-color: var(--brand-yellow); opacity: 1; font-weight: 900; }
+
+#notesList { flex: 1; overflow-y: auto; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+.mint-textarea { 
+    background-color: var(--card-bg); 
+    border: 3px solid var(--card-border); 
+    color: var(--text); 
+    outline: none; 
+    width: 100%; 
+    resize: none; 
+}
+
+.full-screen-modal { 
+    position: fixed; 
+    inset: 0; 
+    background: var(--bg); 
+    z-index: 100; 
+    opacity: 0; 
+    pointer-events: none; 
+    transition: 0.4s; 
+    padding: 40px; 
+    display: flex; 
+    flex-direction: column; 
+}
+
+.full-screen-modal.active { opacity: 1; pointer-events: all; }
+.truncate-text { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.pinned-badge { background: var(--brand-yellow); color: #000; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 900; margin-bottom: 8px; display: inline-block; }
+
+.note-image { 
+    width: 100%; 
+    max-height: 150px; /* Уменьшили по твоему желанию */
+    object-fit: cover; 
+    border-radius: 15px; 
+    margin-top: 10px; 
+    border: 2px solid var(--card-border); 
+}
+
+.action-btn { opacity: 0.6; transition: 0.2s; }
+.action-btn:hover { opacity: 1; scale: 1.2; }
