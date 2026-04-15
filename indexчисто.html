@@ -9,7 +9,7 @@
 </head>
 <body>
 
-    <header class="pt-12 px-8 pb-2 shrink-0">
+    <header class="pt-12 px-4 md:px-8 pb-2 shrink-0">
         <div class="flex items-center justify-between mb-4">
             <button onclick="toggleMenu()" class="p-2 active:scale-90">
                 <div class="w-8 h-2 bg-[#ffff00] border border-black rounded-full mb-1.5"></div>
@@ -18,25 +18,25 @@
             </button>
             <h1 id="ui-logo" class="text-3xl font-black italic brand-text uppercase">Basic Notes</h1>
         </div>
-        <div class="flex gap-2 justify-end mb-4">
+        
+        <div class="mb-4">
+            <input type="text" id="searchInput" oninput="render()" class="w-full bg-transparent border-b-4 border-current/20 p-2 outline-none text-xl font-bold font-['Raleway'] focus:border-[var(--brand-yellow)] transition-colors">
+        </div>
+
+        <div class="flex gap-2 justify-end mb-4 flex-wrap">
             <button onclick="sortNotes()" id="ui-btn-sort" class="header-btn">Time</button>
-            <button onclick="exportNotes()" id="ui-btn-export" class="header-btn">Export</button>
-            <button onclick="triggerImport()" id="ui-btn-import" class="header-btn">Import</button>
-            <input type="file" id="importFile" class="hidden" accept=".json,image/*">
+            <button onclick="exportAllNotes()" id="ui-btn-export" class="header-btn">Export All</button>
+            <button onclick="document.getElementById('importBackup').click()" id="ui-btn-import" class="header-btn">Import</button>
+            <input type="file" id="importBackup" class="hidden" accept=".json">
         </div>
         <div id="playlistTabs" class="flex gap-6 overflow-x-auto pb-2 border-b-2 border-current/20 no-scrollbar"></div>
     </header>
 
-    <main id="notesList" class="px-8 space-y-4 py-4 no-scrollbar"></main>
+    <main id="notesList" class="px-4 md:px-8 py-4 overflow-y-auto no-scrollbar grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 items-start content-start flex-1"></main>
 
-    <div id="imagePreviewContainer" class="hidden px-8 pb-2">
-        <div class="relative inline-block">
-            <img id="tempImage" src="" class="h-20 w-20 object-cover rounded-xl border-2 border-[#ffff00]">
-            <button onclick="clearTempImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs font-bold">✕</button>
-        </div>
-    </div>
+    <div id="attachmentsPreview" class="hidden px-8 pb-2 flex gap-2 overflow-x-auto no-scrollbar"></div>
 
-    <footer class="px-8 pb-8 pt-2 shrink-0 bg-[var(--bg)]">
+    <footer class="px-4 md:px-8 pb-8 pt-2 shrink-0 bg-[var(--bg)]">
         <div class="flex justify-between text-[11px] mb-2 uppercase font-black raleway">
             <span id="ui-limit-label">Notes</span>
             <span id="ui-counter">0</span>
@@ -44,8 +44,9 @@
         <div class="relative">
             <textarea id="ui-textarea" class="mint-textarea rounded-3xl p-5 h-24 text-xl font-bold"></textarea>
             <div class="absolute bottom-3 right-3 flex gap-2">
-                <button onclick="triggerImport()" class="bg-white/10 border-2 border-[var(--card-border)] w-14 h-14 rounded-2xl active:scale-90 flex items-center justify-center">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                <input type="file" id="attachFiles" class="hidden" multiple>
+                <button onclick="document.getElementById('attachFiles').click()" class="bg-white/10 border-2 border-[var(--card-border)] w-14 h-14 rounded-2xl active:scale-90 flex items-center justify-center">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
                 </button>
                 <button onclick="addNote()" class="bg-[#ffff00] border-2 border-black w-14 h-14 rounded-2xl active:scale-90 flex items-center justify-center shadow-lg">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="4"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
@@ -68,7 +69,7 @@
             <button onclick="toggleSettings()" id="ui-btn-settings-menu" class="w-full text-left py-3 border-b-4 border-black/20">Settings</button>
         </nav>
         <div class="mt-auto pt-6 flex justify-between items-center text-sm font-black raleway text-black">
-            <div>v 2.2.0</div>
+            <div>v 2.3.0</div>
             <button onclick="toggleContact()" id="ui-btn-team" class="bg-black text-white px-6 py-3 rounded-full uppercase">TEAM</button>
         </div>
     </div>
@@ -111,11 +112,9 @@
     </div>
 
     <div id="viewNoteModal" class="full-screen-modal">
-        <div class="flex-1 overflow-y-auto no-scrollbar pt-10">
-            <img id="fullNoteImage" src="" class="w-full rounded-3xl mb-6 hidden border-4 border-[#ffff00]">
-            <p id="fullNoteText" class="text-3xl font-black leading-tight whitespace-pre-wrap text-[var(--text)]"></p>
-        </div>
-        <button onclick="closeNoteView()" id="ui-btn-close-view" class="mt-8 border-4 border-current text-[var(--text)] py-6 rounded-3xl font-black uppercase raleway text-2xl">Back</button>
+        <div class="flex-1 overflow-y-auto no-scrollbar pt-10" id="fullNoteContent">
+            </div>
+        <button onclick="closeNoteView()" id="ui-btn-close-view" class="mt-8 border-4 border-current text-[var(--text)] py-6 rounded-3xl font-black uppercase raleway text-2xl shrink-0">Back</button>
     </div>
 
     <div id="overlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/80 hidden z-40 backdrop-blur-md"></div>
