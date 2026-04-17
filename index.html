@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <title>Basic Notes</title>
+    <title>Basic Notes Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Raleway:wght@700;900&display=swap');
@@ -12,78 +12,49 @@
             --bg: #000; --text: #00ffcc; --card-bg: #050505; --card-border: rgba(0, 255, 204, 0.4); --brand-yellow: #ffff00; 
         }
         .theme-light { 
-            --bg: #ffffff; --text: #000000; --card-bg: #f5f5f5; --card-border: #000000; 
-        }
-        .theme-accessible { 
-            --bg: #ffffff; --text: #000; --card-bg: #fff; --card-border: #000; --brand-yellow: #000;
+             --bg: #e1ae79; --text: #ffffff; --card-bg: #000000; --card-border: #000000;  
         }
 
-        html, body { height: 100dvh; margin: 0; background-color: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow: hidden; display: flex; flex-direction: column; }
+        html, body { height: 100dvh; margin: 0; background-color: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow: hidden; display: flex; flex-direction: column; transition: background 0.3s; }
 
         .brand-text { color: var(--brand-yellow); font-family: 'Raleway', sans-serif; }
-        .raleway { font-family: 'Raleway', sans-serif; }
         .mint-border { border: 3px solid var(--card-border); }
 
-        /* СКРОЛЛ ПЛЕЙЛИСТОВ */
         #playlistTabs {
-            display: flex;
-            gap: 1.5rem;
-            overflow-x: auto;
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-            padding-bottom: 8px;
-            margin-bottom: 10px;
-            scroll-snap-type: x mandatory;
-            border-bottom: 2px solid rgba(255,255,255,0.1);
+            display: flex; gap: 1.5rem; overflow-x: auto; scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch; scrollbar-width: none;
+            padding-bottom: 8px; border-bottom: 2px solid rgba(255,255,255,0.1);
         }
         #playlistTabs::-webkit-scrollbar { display: none; }
 
         .playlist-tab {
-            flex: 0 0 auto;
-            scroll-snap-align: start;
-            border-bottom: 4px solid transparent;
-            opacity: 0.5;
-            white-space: nowrap;
-            padding: 0 4px 6px 4px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            font-family: 'Raleway', sans-serif;
+            flex: 0 0 auto; border-bottom: 4px solid transparent;
+            opacity: 0.5; transition: all 0.2s ease; cursor: pointer; font-family: 'Raleway', sans-serif;
         }
-        .playlist-tab.active { border-color: var(--brand-yellow); opacity: 1; font-weight: 900; transform: scale(1.1); }
+        .playlist-tab.active { border-color: var(--brand-yellow); opacity: 1; font-weight: 900; transform: scale(1.05); }
 
         .mint-menu { background-color: var(--brand-yellow); color: #000; transition: 0.4s; left: 0; transform: translateX(-100%); }
         .drawer-open { transform: translateX(0) !important; }
 
         .header-btn { font-size: 10px; font-weight: 900; border: 2px solid var(--card-border); padding: 5px 10px; border-radius: 6px; text-transform: uppercase; color: var(--text); }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-
         .mint-textarea { background: var(--card-bg); border: 3px solid var(--card-border); color: var(--text); outline: none; width: 100%; resize: none; }
 
-        .full-screen-modal { position: fixed; inset: 0; background: var(--bg); z-index: 100; opacity: 0; pointer-events: none; transition: 0.4s; padding: 40px; display: flex; flex-direction: column; }
+        .full-screen-modal { position: fixed; inset: 0; background: var(--bg); z-index: 100; opacity: 0; pointer-events: none; transition: 0.4s; padding: 40px; display: flex; flex-direction: column; overflow-y: auto; }
         .full-screen-modal.active { opacity: 1; pointer-events: all; }
 
         .truncate-text { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; }
         .pinned-badge { background: var(--brand-yellow); color: #000; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 900; margin-bottom: 8px; display: inline-block; }
 
-        .media-preview-wrapper { position: relative; margin-top: 10px; width: 100%; }
         .note-image, .note-video { width: 100%; max-height: 150px; object-fit: cover; border-radius: 12px; border: 2px solid var(--card-border); }
-        .media-counter { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); color: var(--brand-yellow); padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 900; border: 1px solid var(--brand-yellow); z-index: 10; }
+        .media-counter { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); color: var(--brand-yellow); padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 900; border: 1px solid var(--brand-yellow); }
 
-        .full-note-image, .full-note-video { width: 100%; border-radius: 20px; border: 4px solid var(--brand-yellow); margin-bottom: 16px; }
-
-        .action-btn { opacity: 0.6; cursor: pointer; transition: 0.2s; }
+        .action-btn { opacity: 0.7; transition: 0.2s; }
         .action-btn:hover { opacity: 1; transform: scale(1.1); }
-
-        @media print {
-            header, footer, #menu, #overlay, .action-btn, .media-counter, .header-btn { display: none !important; }
-            body { background: white !important; color: black !important; overflow: visible !important; }
-            .full-screen-modal { position: static !important; opacity: 1 !important; padding: 0 !important; }
-            .mint-border { border: 1px solid #000 !important; break-inside: avoid; }
-        }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body>
+<body class="theme-dark">
 
     <header class="pt-12 px-4 md:px-8 pb-2 shrink-0">
         <div class="flex items-center justify-between mb-4">
@@ -99,13 +70,8 @@
             <input type="text" id="searchInput" oninput="render()" class="w-full bg-transparent border-b-4 border-current/20 p-2 outline-none text-xl font-bold focus:border-[var(--brand-yellow)] transition-colors">
         </div>
 
-        <div class="flex gap-2 justify-end mb-4 flex-wrap">
-            <button onclick="sortNotes()" id="ui-btn-sort" class="header-btn">Time</button>
-            <button onclick="exportAllNotes('pdf')" class="header-btn">PDF</button>
-            <button onclick="exportAllNotes('txt')" class="header-btn">TXT</button>
-            <button onclick="exportAllNotes('json')" class="header-btn">JSON</button>
-            <button onclick="document.getElementById('importBackup').click()" id="ui-btn-import" class="header-btn">Import</button>
-            <input type="file" id="importBackup" class="hidden" accept=".json">
+        <div class="flex gap-2 justify-end mb-4">
+            <button onclick="sortNotes()" id="ui-btn-sort" class="header-btn">Time ↓</button>
         </div>
         <div id="playlistTabs" class="no-scrollbar"></div>
     </header>
@@ -115,7 +81,7 @@
     <div id="attachmentsPreview" class="hidden px-8 pb-2 flex gap-2 overflow-x-auto no-scrollbar"></div>
 
     <footer class="px-4 md:px-8 pb-8 pt-2 shrink-0 bg-[var(--bg)]">
-        <div class="flex justify-between text-[11px] mb-2 uppercase font-black raleway">
+        <div class="flex justify-between text-[11px] mb-2 uppercase font-black">
             <span id="ui-limit-label">Notes</span>
             <span id="ui-counter">0</span>
         </div>
@@ -123,11 +89,11 @@
             <textarea id="ui-textarea" class="mint-textarea rounded-3xl p-5 h-24 text-xl font-bold"></textarea>
             <div class="absolute bottom-3 right-3 flex gap-2">
                 <input type="file" id="attachFiles" class="hidden" multiple accept="image/*,video/*">
-                <button onclick="document.getElementById('attachFiles').click()" class="bg-white/10 border-2 border-[var(--card-border)] w-14 h-14 rounded-2xl active:scale-90 flex items-center justify-center">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                <button onclick="document.getElementById('attachFiles').click()" class="bg-white/10 border-2 border-[var(--card-border)] w-12 h-12 rounded-xl active:scale-90 flex items-center justify-center">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
                 </button>
-                <button onclick="addNote()" class="bg-[#ffff00] border-2 border-black w-14 h-14 rounded-2xl active:scale-90 flex items-center justify-center shadow-lg">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="4"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                <button onclick="addNote()" class="bg-[#ffff00] border-2 border-black w-12 h-12 rounded-xl active:scale-90 flex items-center justify-center shadow-lg">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="4"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                 </button>
             </div>
         </div>
@@ -142,19 +108,15 @@
             <div>
                 <p id="ui-playlist-label" class="text-xs mb-4 opacity-70">Playlists</p>
                 <div id="menuPlaylists" class="space-y-4"></div>
-                <button onclick="showDialog('playlist')" id="ui-add-playlist" class="mt-6 text-sm border-4 border-black px-6 py-2 rounded-xl active:bg-black active:text-white transition-colors">+ NEW</button>
+                <button onclick="showDialog('playlist')" id="ui-add-playlist" class="mt-6 text-sm border-4 border-black px-6 py-2 rounded-xl active:bg-black active:text-white">+ NEW</button>
             </div>
-            <button onclick="toggleSettings()" id="ui-btn-settings-menu" class="w-full text-left py-3 border-b-4 border-black/20">Settings</button>
+            <button onclick="toggleSettings()" id="ui-btn-settings-menu" class="w-full text-left py-3 border-b-4 border-black/20 text-black">Settings</button>
         </nav>
-        <div class="mt-auto pt-6 flex justify-between items-center text-sm font-black text-black">
-            <div>v 3.0.0</div>
-            <button onclick="toggleContact()" id="ui-btn-team" class="bg-black text-white px-6 py-3 rounded-full">TEAM</button>
-        </div>
     </div>
 
     <div id="viewNoteModal" class="full-screen-modal">
-        <div class="flex-1 overflow-y-auto no-scrollbar pt-10" id="fullNoteContent"></div>
-        <button onclick="closeNoteView()" id="ui-btn-close-view" class="mt-4 border-4 border-current py-6 rounded-3xl font-black uppercase text-2xl">Back</button>
+        <div class="flex-1" id="fullNoteContent"></div>
+        <button onclick="closeNoteView()" id="ui-btn-close-view" class="mt-8 border-4 border-current py-6 rounded-3xl font-black uppercase text-2xl">Back</button>
     </div>
 
     <div id="settingsScreen" class="full-screen-modal">
@@ -164,20 +126,10 @@
                 <button onclick="setLanguage('ru')" class="flex-1 p-6 border-4 border-current rounded-xl font-black">RU</button>
                 <button onclick="setLanguage('en')" class="flex-1 p-6 border-4 border-current rounded-xl font-black">EN</button>
              </div>
-             <button onclick="setTheme('dark')" id="ui-theme-dark" class="w-full text-left p-6 border-4 border-current rounded-xl font-black">Dark</button>
-             <button onclick="setTheme('light')" id="ui-theme-light" class="w-full text-left p-6 border-4 border-current rounded-xl font-black">Light</button>
-             <button onclick="setTheme('accessible')" id="ui-theme-acc" class="w-full text-left p-6 border-4 border-current rounded-xl font-black uppercase">Contrast</button>
+             <button onclick="setTheme('dark')" id="ui-theme-dark" class="w-full text-left p-6 border-4 border-current rounded-xl font-black uppercase">Dark</button>
+             <button onclick="setTheme('light')" id="ui-theme-light" class="w-full text-left p-6 border-4 border-current rounded-xl font-black uppercase">Light</button>
         </div>
         <button onclick="toggleSettings()" id="ui-settings-done" class="mt-auto border-4 border-current py-6 rounded-3xl font-black uppercase">Done</button>
-    </div>
-
-    <div id="contactScreen" class="full-screen-modal">
-        <h2 id="ui-team-title" class="brand-text font-black text-4xl italic mb-12 uppercase">Team</h2>
-        <div class="space-y-8 border-l-8 border-current pl-10 mb-10">
-            <p id="member-1" class="font-black text-3xl"></p>
-            <p id="member-2" class="font-black text-3xl"></p>
-        </div>
-        <button onclick="toggleContact()" id="ui-team-close" class="mt-auto border-4 border-current py-6 rounded-3xl font-black uppercase text-2xl">Close</button>
     </div>
 
     <div id="customDialog" class="full-screen-modal justify-center items-center bg-black/90">
@@ -195,8 +147,9 @@
     <div id="overlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/80 hidden z-40 backdrop-blur-md"></div>
 
     <script>
+        // Инициализация данных
         let data = JSON.parse(localStorage.getItem('basic_notes_v7')) || {
-            playlists: [{id: 1, title: 'Моё'}],
+            playlists: [{id: 1, title: 'Main'}],
             notes: [],
             currentPlaylistId: 1,
             sortAsc: false,
@@ -204,28 +157,38 @@
             theme: 'dark'
         };
 
-        let tempAttachments = []; 
+        let tempAttachments = [];
 
         const translations = {
             ru: {
-                logo: "Basic Notes", welcome: "ПУСТО", placeholder: "ТЕКСТ...", searchPlaceholder: "Поиск...",
-                menu: "МЕНЮ", settings: "НАСТРОЙКИ", team: "КОМАНДА", close: "ЗАКРЫТЬ",
+                logo: "Basic Notes", placeholder: "ТЕКСТ...", searchPlaceholder: "Поиск...",
+                menu: "МЕНЮ", settings: "НАСТРОЙКИ", close: "ЗАКРЫТЬ",
                 addPlaylist: "+ Плейлист", playlistLabel: "ПЛЕЙЛИСТЫ", pinnedBadge: "ЗАКРЕП",
-                sort: "Время", import: "Импорт", cancel: "ОТМЕНА", back: "НАЗАД", done: "ГОТОВО",
-                tDark: "ТЕМНАЯ", tLight: "СВЕТЛАЯ", tAcc: "КОНТРАСТ", confirmNoteDel: "Удалить?", confirmPListDel: "Удалить плейлист?",
-                newPListTitle: "Название", create: "Создать", counter: "Заметки", m1: "Александров Арсений", m2: "Малышев Егор"
+                sort: "Время", cancel: "ОТМЕНА", back: "НАЗАД", done: "ГОТОВО",
+                tDark: "ТЕМНАЯ", tLight: "СВЕТЛАЯ", confirmNoteDel: "Удалить?", confirmPListDel: "Удалить плейлист?",
+                newPListTitle: "Название", counter: "Заметки", empty: "ПУСТО"
             },
             en: {
-                logo: "Basic Notes", welcome: "EMPTY", placeholder: "TYPE...", searchPlaceholder: "Search...",
-                menu: "MENU", settings: "SETTINGS", team: "TEAM", close: "CLOSE",
+                logo: "Basic Notes", placeholder: "TYPE...", searchPlaceholder: "Search...",
+                menu: "MENU", settings: "SETTINGS", close: "CLOSE",
                 addPlaylist: "+ Playlist", playlistLabel: "PLAYLISTS", pinnedBadge: "PINNED",
-                sort: "Time", import: "Import", cancel: "CANCEL", back: "BACK", done: "DONE",
-                tDark: "DARK", tLight: "LIGHT", tAcc: "CONTRAST", confirmNoteDel: "Delete?", confirmPListDel: "Delete playlist?",
-                newPListTitle: "Title", create: "Create", counter: "Notes", m1: "Arseniy Alexandrov", m2: "Egor Malyshev"
+                sort: "Time", cancel: "CANCEL", back: "BACK", done: "DONE",
+                tDark: "DARK", tLight: "LIGHT", confirmNoteDel: "Delete?", confirmPListDel: "Delete playlist?",
+                newPListTitle: "Title", counter: "Notes", empty: "EMPTY"
             }
         };
 
-        function save() { localStorage.setItem('basic_notes_v7', JSON.stringify(data)); render(); }
+        // Хелпер для защиты от XSS
+        const escapeHTML = str => str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+        function save() { 
+            try {
+                localStorage.setItem('basic_notes_v7', JSON.stringify(data)); 
+            } catch(e) {
+                alert("Память переполнена! Удалите старые заметки с фото.");
+            }
+            render(); 
+        }
 
         function setLanguage(lang) {
             data.lang = lang;
@@ -236,26 +199,28 @@
             document.getElementById('ui-menu-title').innerText = t.menu;
             document.getElementById('ui-settings-title').innerText = t.settings;
             document.getElementById('ui-btn-settings-menu').innerText = t.settings;
-            document.getElementById('ui-btn-team').innerText = t.team;
             document.getElementById('ui-add-playlist').innerText = t.addPlaylist;
             document.getElementById('ui-playlist-label').innerText = t.playlistLabel;
-            document.getElementById('ui-btn-sort').innerText = t.sort;
-            document.getElementById('ui-btn-import').innerText = t.import;
             document.getElementById('ui-btn-close-view').innerText = t.back;
             document.getElementById('ui-settings-done').innerText = t.done;
             document.getElementById('ui-theme-dark').innerText = t.tDark;
             document.getElementById('ui-theme-light').innerText = t.tLight;
-            document.getElementById('ui-theme-acc').innerText = t.tAcc;
-            document.getElementById('ui-team-title').innerText = t.team;
-            document.getElementById('ui-team-close').innerText = t.close;
             document.getElementById('ui-limit-label').innerText = t.counter;
-            document.getElementById('member-1').innerText = t.m1;
-            document.getElementById('member-2').innerText = t.m2;
             document.getElementById('ui-dialog-cancel').innerText = t.cancel;
+            updateSortButton();
             save();
         }
 
-        function setTheme(theme) { data.theme = theme; save(); }
+        function setTheme(theme) { 
+            data.theme = theme; 
+            document.body.className = 'theme-' + theme;
+            save(); 
+        }
+
+        function updateSortButton() {
+            const t = translations[data.lang];
+            document.getElementById('ui-btn-sort').innerText = `${t.sort} ${data.sortAsc ? '↑' : '↓'}`;
+        }
 
         function render() {
             document.body.className = 'theme-' + data.theme;
@@ -265,74 +230,70 @@
             let filtered = data.notes.filter(n => n.pid === data.currentPlaylistId);
             if (searchText) filtered = filtered.filter(n => n.text.toLowerCase().includes(searchText));
             
-            if (!data.sortAsc) {
-                filtered.sort((a, b) => (a.pinned === b.pinned) ? 0 : a.pinned ? -1 : 1);
-            }
+            // Логика сортировки
+            filtered.sort((a, b) => {
+                if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+                return data.sortAsc ? a.id - b.id : b.id - a.id;
+            });
 
-            // Рендер вкладок плейлистов
+            // Табы плейлистов
             const tabs = document.getElementById('playlistTabs');
             tabs.innerHTML = data.playlists.map(p => `
-                <button onclick="data.currentPlaylistId=${p.id}; save();" class="playlist-tab uppercase text-sm ${data.currentPlaylistId === p.id ? 'active' : ''}">${p.title}</button>
+                <button onclick="data.currentPlaylistId=${p.id}; save();" class="playlist-tab uppercase text-sm ${data.currentPlaylistId === p.id ? 'active' : ''}">${escapeHTML(p.title)}</button>
             `).join('');
-
-            // Авто-скролл
-            setTimeout(() => {
-                const activeTab = document.querySelector('.playlist-tab.active');
-                if (activeTab) activeTab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-            }, 100);
 
             document.getElementById('ui-counter').innerText = filtered.length;
 
+            // Список заметок
             const list = document.getElementById('notesList');
             if(!filtered.length) {
-                list.innerHTML = `<div class="col-span-full h-40 flex items-center justify-center opacity-40 font-black uppercase text-4xl">${t.welcome}</div>`;
+                list.innerHTML = `<div class="col-span-full h-40 flex items-center justify-center opacity-40 font-black uppercase text-4xl">${t.empty}</div>`;
             } else {
-                list.innerHTML = filtered.map((n, i) => {
-                    let allMedia = n.attachments || [];
+                list.innerHTML = filtered.map(n => {
+                    const media = n.attachments?.[0];
                     let mediaHtml = '';
-                    if (allMedia.length > 0) {
-                        const first = allMedia[0];
-                        let content = '';
-                        if (first.type.startsWith('image/')) content = `<img src="${first.data}" class="note-image">`;
-                        else if (first.type.startsWith('video/')) content = `<video src="${first.data}" class="note-video"></video>`;
-                        else content = `<div class="file-attachment text-[10px] p-2 border border-current rounded">📄 ${first.name}</div>`;
-                        const counter = allMedia.length > 1 ? `<div class="media-counter">+${allMedia.length - 1}</div>` : '';
-                        mediaHtml = `<div class="media-preview-wrapper">${content}${counter}</div>`;
+                    if (media) {
+                        const content = media.type.startsWith('image/') 
+                            ? `<img src="${media.data}" class="note-image">` 
+                            : `<div class="p-4 bg-white/5 rounded-xl border border-current/20 text-center">🎬 Video</div>`;
+                        const counter = n.attachments.length > 1 ? `<div class="media-counter">+${n.attachments.length - 1}</div>` : '';
+                        mediaHtml = `<div class="relative mt-3">${content}${counter}</div>`;
                     }
 
                     return `
-                    <div class="p-4 rounded-[30px] mint-border bg-[var(--card-bg)] relative break-inside-avoid shadow-lg">
+                    <div class="p-4 rounded-[25px] mint-border bg-[var(--card-bg)] relative shadow-lg">
                         <div class="absolute top-4 right-4 flex gap-2">
-                             <button onclick="exportSingleNote(${n.id})" class="action-btn text-xs border-2 border-current px-1 rounded">💾</button>
                              <button onclick="editNote(${n.id})" class="action-btn text-xs border-2 border-current px-1 rounded">✏️</button>
                         </div>
                         ${n.pinned ? `<span class="pinned-badge">${t.pinnedBadge}</span>` : ''}
                         <div onclick="openNote(${n.id})" class="cursor-pointer">
-                            <p class="font-black truncate-text mt-4">${n.text}</p>
+                            <p class="font-black truncate-text mt-4">${escapeHTML(n.text)}</p>
                             ${mediaHtml}
                         </div>
-                        <div class="flex justify-between items-center mt-3 pt-3 border-t border-white/10 font-black">
+                        <div class="flex justify-between items-center mt-3 pt-3 border-t border-white/10">
                             <button onclick="togglePin(${n.id})" class="text-lg action-btn">${n.pinned ? '📍' : '📌'}</button>
                             <button onclick="showDialog('delNote', ${n.id})" class="text-xl action-btn">✕</button>
                         </div>
-                    </div>
-                    `;
+                    </div>`;
                 }).join('');
             }
 
+            // Плейлисты в меню
             document.getElementById('menuPlaylists').innerHTML = data.playlists.map(p => `
-                <div class="flex justify-between items-center p-4 rounded-2xl ${data.currentPlaylistId === p.id ? 'bg-black/20' : ''} border-2 border-black/10">
-                    <span onclick="data.currentPlaylistId=${p.id}; toggleMenu(); save();" class="flex-1 truncate cursor-pointer text-black font-black uppercase">${p.title}</span>
-                    <button onclick="showDialog('delPlaylist', ${p.id})" class="ml-4 font-black text-black">✕</button>
+                <div class="flex justify-between items-center p-4 rounded-2xl ${data.currentPlaylistId === p.id ? 'bg-black/10' : ''} border-2 border-black/20">
+                    <span onclick="data.currentPlaylistId=${p.id}; toggleMenu(); save();" class="flex-1 truncate cursor-pointer text-black font-black uppercase">${escapeHTML(p.title)}</span>
+                    <button onclick="showDialog('delPlaylist', ${p.id})" class="ml-4 font-black">✕</button>
                 </div>
             `).join('');
         }
 
+        // Работа с файлами
         document.getElementById('attachFiles').addEventListener('change', function(e) {
             for (let file of e.target.files) {
+                if (file.size > 2 * 1024 * 1024) { alert("Файл слишком большой (>2MB)"); continue; }
                 const reader = new FileReader();
-                reader.onload = (event) => {
-                    tempAttachments.push({ name: file.name, type: file.type, data: event.target.result });
+                reader.onload = (ev) => {
+                    tempAttachments.push({ name: file.name, type: file.type, data: ev.target.result });
                     renderAttachmentsPreview();
                 };
                 reader.readAsDataURL(file);
@@ -344,8 +305,8 @@
             if(!tempAttachments.length) return container.classList.add('hidden');
             container.classList.remove('hidden');
             container.innerHTML = tempAttachments.map((a, i) => `
-                <div class="relative shrink-0 w-14 h-14 bg-white/10 rounded-lg overflow-hidden border-2 border-[#ffff00]">
-                    ${a.type.startsWith('image/') ? `<img src="${a.data}" class="w-full h-full object-cover">` : (a.type.startsWith('video/') ? '🎬' : '📄')}
+                <div class="relative shrink-0 w-14 h-14 bg-white/10 rounded-lg overflow-hidden border-2 border-[var(--brand-yellow)]">
+                    ${a.type.startsWith('image/') ? `<img src="${a.data}" class="w-full h-full object-cover">` : '🎬'}
                     <button onclick="tempAttachments.splice(${i},1); renderAttachmentsPreview()" class="absolute top-0 right-0 bg-red-500 text-white w-4 h-4 text-[8px]">✕</button>
                 </div>
             `).join('');
@@ -354,7 +315,13 @@
         function addNote() {
             const el = document.getElementById('ui-textarea');
             if(!el.value.trim() && !tempAttachments.length) return;
-            data.notes.push({ id: Date.now(), pid: data.currentPlaylistId, text: el.value, attachments: [...tempAttachments], pinned: false });
+            data.notes.push({ 
+                id: Date.now(), 
+                pid: data.currentPlaylistId, 
+                text: el.value, 
+                attachments: [...tempAttachments], 
+                pinned: false 
+            });
             el.value = ''; tempAttachments = []; renderAttachmentsPreview(); save();
         }
 
@@ -369,42 +336,18 @@
             }
         }
 
-        function togglePin(id) { const n = data.notes.find(x => x.id === id); if(n) n.pinned = !n.pinned; save(); }
-
-        function exportAllNotes(format) {
-            if(format === 'json') {
-                const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
-                const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'backup.json'; a.click();
-            } else if(format === 'txt') {
-                let txt = data.notes.filter(n => n.pid === data.currentPlaylistId).map(n => `--- NOTE ---\n${n.text}\n`).join('\n');
-                const blob = new Blob([txt], {type: 'text/plain'});
-                const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'notes.txt'; a.click();
-            } else if(format === 'pdf') {
-                window.print();
-            }
-        }
-
-        function exportSingleNote(id) {
-            const n = data.notes.find(x => x.id === id);
-            const f = prompt("1-TXT, 2-PDF, 3-JSON", "1");
-            if(f === "1") {
-                const blob = new Blob([n.text], {type: 'text/plain'});
-                const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'note.txt'; a.click();
-            } else if (f === "2") {
-                openNote(id);
-                setTimeout(() => window.print(), 500);
-            } else if (f === "3") {
-                const blob = new Blob([JSON.stringify(n)], {type: 'application/json'});
-                const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'note.json'; a.click();
-            }
+        function togglePin(id) { 
+            const n = data.notes.find(x => x.id === id); 
+            if(n) n.pinned = !n.pinned; 
+            save(); 
         }
 
         function openNote(id) { 
             const n = data.notes.find(x => x.id === id);
-            let html = `<p class="text-2xl font-black mb-6 whitespace-pre-wrap">${n.text}</p>`;
+            let html = `<p class="text-2xl font-black mb-6 whitespace-pre-wrap">${escapeHTML(n.text)}</p>`;
             (n.attachments || []).forEach(a => {
-                if(a.type.startsWith('image/')) html += `<img src="${a.data}" class="full-note-image">`;
-                else if(a.type.startsWith('video/')) html += `<video src="${a.data}" controls class="full-note-video"></video>`;
+                if(a.type.startsWith('image/')) html += `<img src="${a.data}" class="w-full rounded-3xl mb-4 border-4 border-[var(--brand-yellow)]">`;
+                else if(a.type.startsWith('video/')) html += `<video src="${a.data}" controls class="w-full rounded-3xl mb-4 border-4 border-[var(--brand-yellow)]"></video>`;
             });
             document.getElementById('fullNoteContent').innerHTML = html;
             document.getElementById('viewNoteModal').classList.add('active'); 
@@ -413,21 +356,7 @@
         function closeNoteView() { document.getElementById('viewNoteModal').classList.remove('active'); }
         function toggleMenu() { document.getElementById('menu').classList.toggle('drawer-open'); document.getElementById('overlay').classList.toggle('hidden'); }
         function toggleSettings() { document.getElementById('settingsScreen').classList.toggle('active'); }
-        function toggleContact() { document.getElementById('contactScreen').classList.toggle('active'); }
-        function sortNotes() { data.sortAsc = !data.sortAsc; save(); }
-
-        document.getElementById('importBackup').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    const imported = JSON.parse(event.target.result);
-                    if (imported.notes) { data.notes = [...data.notes, ...imported.notes]; save(); }
-                } catch (err) { alert("Error!"); }
-            };
-            reader.readAsText(file);
-        });
+        function sortNotes() { data.sortAsc = !data.sortAsc; updateSortButton(); save(); }
 
         function showDialog(type, id = null) {
             const t = translations[data.lang];
@@ -435,26 +364,36 @@
             const input = document.getElementById('dialogInput');
             const desc = document.getElementById('dialogDesc');
             m.classList.add('active');
+            
             if(type === 'playlist') {
                 document.getElementById('dialogTitle').innerText = t.newPListTitle;
                 input.classList.remove('hidden'); desc.classList.add('hidden'); input.value = '';
                 document.getElementById('dialogConfirmBtn').onclick = () => {
-                    if(input.value) { const nid = Date.now(); data.playlists.push({id: nid, title: input.value}); data.currentPlaylistId = nid; closeDialog(); save(); }
+                    if(input.value.trim()) { 
+                        const nid = Date.now(); 
+                        data.playlists.push({id: nid, title: input.value}); 
+                        data.currentPlaylistId = nid; 
+                        closeDialog(); save(); 
+                    }
                 };
             } else {
                 document.getElementById('dialogTitle').innerText = (type === 'delNote' ? t.confirmNoteDel : t.confirmPListDel);
                 input.classList.add('hidden'); desc.classList.remove('hidden');
                 document.getElementById('dialogConfirmBtn').onclick = () => {
                     if(type === 'delNote') data.notes = data.notes.filter(n => n.id !== id);
-                    else { data.playlists = data.playlists.filter(p => p.id !== id); data.notes = data.notes.filter(n => n.pid !== id); if(data.currentPlaylistId === id) data.currentPlaylistId = data.playlists[0]?.id || 0; }
+                    else { 
+                        data.playlists = data.playlists.filter(p => p.id !== id); 
+                        data.notes = data.notes.filter(n => n.pid !== id); 
+                        if(data.currentPlaylistId === id) data.currentPlaylistId = data.playlists[0]?.id || 0; 
+                    }
                     closeDialog(); save();
                 };
             }
         }
         function closeDialog() { document.getElementById('customDialog').classList.remove('active'); }
 
+        // Start
         setLanguage(data.lang);
-        render();
     </script>
 </body>
 </html>
