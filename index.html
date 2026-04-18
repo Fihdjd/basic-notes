@@ -1,189 +1,372 @@
 <!DOCTYPE html>
+
 <html lang="ru">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+
     <title>Basic Notes</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
 
+
+
     <style>
+
         /* Подключение шрифтов */
+
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Raleway:wght@700;900&display=swap');
 
+
+
         /* Цветовые схемы (Тёмная и Светлая) */
+
         :root { 
+
             --bg: #000; --text: #00ffcc; --card-bg: #050505; --card-border: rgba(0, 255, 204, 0.4); --brand-yellow: #ffff00; 
+
         }
+
         .theme-light { 
+
             --bg: #e1ae79; --text: #ffffff; --card-bg: #000000; --card-border: #000000; 
+
         }
+
+
 
         /* Базовые настройки страницы */
+
         html, body { height: 100dvh; margin: 0; background-color: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow: hidden; display: flex; flex-direction: column; }
 
+
+
         /* Оформление текста и границ */
+
         .brand-text { color: var(--brand-yellow); font-family: 'Raleway', sans-serif; }
+
         .raleway { font-family: 'Raleway', sans-serif; }
+
         .mint-border { border: 3px solid var(--card-border); }
 
+
+
         /* Вкладки плейлистов (Навигация) */
+
         #playlistTabs {
+
             display: flex; gap: 1.5rem; overflow-x: auto; scroll-behavior: smooth;
+
             -webkit-overflow-scrolling: touch; scrollbar-width: none;
+
             padding-bottom: 8px; margin-bottom: 10px; scroll-snap-type: x mandatory;
+
             border-bottom: 2px solid rgba(255,255,255,0.1);
+
         }
+
         #playlistTabs::-webkit-scrollbar { display: none; }
 
+
+
         .playlist-tab {
+
             flex: 0 0 auto; scroll-snap-align: start; border-bottom: 4px solid transparent;
+
             opacity: 0.5; white-space: nowrap; padding: 0 4px 6px 4px;
+
             transition: all 0.2s ease; cursor: pointer; font-family: 'Raleway', sans-serif;
+
         }
+
         .playlist-tab.active { border-color: var(--brand-yellow); opacity: 1; font-weight: 900; transform: scale(1.1); }
 
+
+
         /* Боковое меню (Drawer) */
+
         .mint-menu { background-color: var(--brand-yellow); color: #000; transition: 0.4s; left: 0; transform: translateX(-100%); }
+
         .drawer-open { transform: translateX(0) !important; 
+
             
+
         }
 
+
+
         /* Элементы управления и текстовое поле */
+
         .header-btn { font-size: 10px; font-weight: 900; border: 2px solid var(--card-border); padding: 5px 10px; border-radius: 6px; text-transform: uppercase; color: var(--text); }
+
         .no-scrollbar::-webkit-scrollbar { display: none; }
+
         .mint-textarea { background: var(--card-bg); border: 3px solid var(--card-border); color: var(--text); outline: none; width: 100%; resize: none; }
 
+
+
         /* Модальные окна и карточки заметок */
+
         .full-screen-modal { position: fixed; inset: 0; background: var(--bg); z-index: 100; opacity: 0; pointer-events: none; transition: 0.4s; padding: 40px; display: flex; flex-direction: column; }
+
         .full-screen-modal.active { opacity: 1; pointer-events: all; }
+
         .truncate-text { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; }
+
         .pinned-badge { background: var(--brand-yellow); color: #000; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 900; margin-bottom: 8px; display: inline-block; }
 
+
+
         /* Медиа-контент внутри заметок */
+
         .media-preview-wrapper { position: relative; margin-top: 10px; width: 100%; }
+
         .note-image, .note-video { width: 100%; max-height: 150px; object-fit: cover; border-radius: 12px; border: 2px solid var(--card-border); }
+
         .media-counter { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); color: var(--brand-yellow); padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 900; border: 1px solid var(--brand-yellow); z-index: 10; }
+
         .full-note-image, .full-note-video { width: 100%; border-radius: 20px; border: 4px solid var(--brand-yellow); margin-bottom: 16px; }
 
+
+
         /* Кнопки действий */
+
         .action-btn { opacity: 0.6; cursor: pointer; transition: 0.2s; }
+
         .action-btn:hover { opacity: 1; transform: scale(1.1); }
+
     </style>
+
 </head>
+
 <body>
 
+
+
     <header class="pt-12 px-4 md:px-8 pb-2 shrink-0">
+
         <div class="flex items-center justify-between mb-4">
+
             <button onclick="toggleMenu()" class="p-2 active:scale-90">
+
                 <div class="w-8 h-2 bg-[#ffff00] border border-black rounded-full mb-1.5"></div>
+
                 <div class="w-8 h-2 bg-[#ffff00] border border-black rounded-full mb-1.5"></div>
+
                 <div class="w-8 h-2 bg-[#ffff00] border border-black rounded-full"></div>
+
             </button>
+
             <h1 id="ui-logo" class="text-3xl font-black italic brand-text uppercase">Basic Notes</h1>
-        </div>
-        
-        <div class="mb-4">
-            <input type="text" id="searchInput" oninput="render()" class="w-full bg-transparent border-b-4 border-current/20 p-2 outline-none text-xl font-bold focus:border-[var(--brand-yellow)] transition-colors">
+
         </div>
 
-        <div class="flex gap-2 justify-end mb-4 flex-wrap">
-            <button onclick="sortNotes()" id="ui-btn-sort" class="header-btn">Time</button>
+        
+
+        <div class="mb-4">
+
+            <input type="text" id="searchInput" oninput="render()" class="w-full bg-transparent border-b-4 border-current/20 p-2 outline-none text-xl font-bold focus:border-[var(--brand-yellow)] transition-colors">
+
         </div>
+
+
+
+        <div class="flex gap-2 justify-end mb-4 flex-wrap">
+
+            <button onclick="sortNotes()" id="ui-btn-sort" class="header-btn">Time</button>
+
+        </div>
+
         <div id="playlistTabs" class="no-scrollbar"></div>
+
     </header>
+
+
 
     <main id="notesList" class="px-4 md:px-8 py-4 overflow-y-auto no-scrollbar grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 items-start content-start flex-1"></main>
 
+
+
     <div id="attachmentsPreview" class="hidden px-8 pb-2 flex gap-2 overflow-x-auto no-scrollbar"></div>
 
+
+
     <footer class="px-4 md:px-8 pb-8 pt-2 shrink-0 bg-[var(--bg)]">
+
         <div class="flex justify-between text-[11px] mb-2 uppercase font-black raleway">
+
             <span id="ui-limit-label">Notes</span>
+
             <span id="ui-counter">0</span>
+
         </div>
+
         <div class="relative">
+
             <textarea id="ui-textarea" class="mint-textarea rounded-3xl p-5 h-24 text-xl font-bold"></textarea>
+
             <div class="absolute bottom-3 right-3 flex gap-2">
+
                 <input type="file" id="attachFiles" class="hidden" multiple accept="image/*,video/*">
+
                 <button onclick="document.getElementById('attachFiles').click()" class="bg-white/10 border-2 border-[var(--card-border)] w-14 h-14 rounded-2xl active:scale-90 flex items-center justify-center">
+
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+
                 </button>
+
                 <button onclick="window.addNote()" class="bg-[#ffff00] border-2 border-black w-14 h-14 rounded-2xl active:scale-90 flex items-center justify-center shadow-lg">
+
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="4"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+
                 </button>
+
             </div>
+
         </div>
+
     </footer>
 
+
+
   <div id="menu" class="fixed top-0 h-full w-80 mint-menu z-50 p-10 flex flex-col shadow-2xl">
+
     <div class="flex justify-between items-center mb-12 text-black font-black">
+
         <h3 id="ui-menu-title" class="text-3xl uppercase">МЕНЮ</h3>
+
         <button onclick="toggleMenu()" class="text-4xl">✕</button>
+
     </div>
+
+
 
     <button id="authBtn" onclick="window.toggleAuth()" class="w-full py-4 mb-8 rounded-2xl bg-black text-[#ffff00] font-black uppercase text-xs border-2 border-black/10 shadow-lg active:scale-95 transition-transform">
+
         Войти через Google
+
     </button>
 
+
+
     <nav class="flex-1 space-y-8 font-black text-2xl uppercase overflow-y-auto no-scrollbar text-black">
+
         <div>
+
             <p id="ui-playlist-label" class="text-xs mb-4 opacity-70">Playlists</p>
+
             <div id="menuPlaylists" class="space-y-4"></div>
+
             <button onclick="showDialog('playlist')" id="ui-add-playlist" class="mt-6 text-sm border-4 border-black px-6 py-2 rounded-xl active:bg-black active:text-white transition-colors">+ NEW</button>
+
         </div>
+
         <button onclick="toggleSettings()" id="ui-btn-settings-menu" class="w-full text-left py-3 border-b-4 border-black/20">Settings</button>
+
     </nav>
 
+
+
     <div class="mt-auto pt-6 flex justify-between items-center text-sm font-black text-black">
+
         <div>v 3.0.2</div>
+
         <button onclick="toggleContact()" id="ui-btn-team" class="bg-black text-white px-6 py-3 rounded-full">TEAM</button>
+
     </div>
+
 </div>
+
     </div>
+
+
 
     <div id="viewNoteModal" class="full-screen-modal">
+
         <div class="flex-1 overflow-y-auto no-scrollbar pt-10" id="fullNoteContent"></div>
+
         <button onclick="closeNoteView()" id="ui-btn-close-view" class="mt-4 border-4 border-current py-6 rounded-3xl font-black uppercase text-2xl">Back</button>
+
     </div>
+
+
 
     <div id="settingsScreen" class="full-screen-modal">
+
         <h2 id="ui-settings-title" class="brand-text font-black text-4xl italic mb-12 uppercase">Settings</h2>
+
         <div class="space-y-6">
+
              <div class="flex gap-2">
+
                 <button onclick="setLanguage('ru')" class="flex-1 p-6 border-4 border-current rounded-xl font-black">RU</button>
+
                 <button onclick="setLanguage('en')" class="flex-1 p-6 border-4 border-current rounded-xl font-black">EN</button>
+
              </div>
+
              <button onclick="setTheme('dark')" id="ui-theme-dark" class="w-full text-left p-6 border-4 border-current rounded-xl font-black">Dark</button>
+
              <button onclick="setTheme('light')" id="ui-theme-light" class="w-full text-left p-6 border-4 border-current rounded-xl font-black">Light</button>
+
         </div>
+
         <button onclick="toggleSettings()" id="ui-settings-done" class="mt-auto border-4 border-current py-6 rounded-3xl font-black uppercase">Done</button>
+
     </div>
+
+
 
     <div id="contactScreen" class="full-screen-modal">
+
         <h2 id="ui-team-title" class="brand-text font-black text-4xl italic mb-12 uppercase">Team</h2>
+
         <div class="space-y-8 border-l-8 border-current pl-10 mb-10">
+
             <p id="member-1" class="font-black text-3xl"></p>
+
             <p id="member-2" class="font-black text-3xl"></p>
+
         </div>
+
         <button onclick="toggleContact()" id="ui-team-close" class="mt-auto border-4 border-current py-6 rounded-3xl font-black uppercase text-2xl">Close</button>
+
     </div>
 
+
+
     <div id="customDialog" class="full-screen-modal justify-center items-center bg-black/90">
+
         <div class="w-full max-sm p-8 border-8 border-current rounded-3xl bg-[var(--bg)] text-[var(--text)]">
+
             <h2 id="dialogTitle" class="text-3xl font-black mb-6 uppercase text-center"></h2>
+
             <input type="text" id="dialogInput" class="w-full bg-transparent border-b-8 border-current mb-8 p-2 outline-none text-2xl font-black hidden">
+
             <p id="dialogDesc" class="mb-8 font-black text-xl text-center"></p>
+
             <div class="flex flex-col gap-4">
+
                 <button id="dialogConfirmBtn" class="w-full bg-[#ffff00] text-black py-5 rounded-2xl font-black uppercase">OK</button>
+
                 <button onclick="closeDialog()" id="ui-dialog-cancel" class="w-full border-4 border-current py-3 rounded-2xl font-black uppercase">Cancel</button>
+
             </div>
+
         </div>
+
     </div>
+
+
 
     <div id="overlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/80 hidden z-40 backdrop-blur-md"></div>
 
+
+
 <script type="module">
-    // --- 1. ИНИЦИАЛИЗАЦИЯ FIREBASE ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -206,7 +389,18 @@
     let currentUser = null;
     window.tempAttachments = [];
 
-    // --- 2. ЛОГИКА АККАУНТА ---
+    const defaultData = {
+        playlists: [{id: 1, title: 'Моё'}],
+        notes: [],
+        currentPlaylistId: 1,
+        sortAsc: false,
+        lang: 'ru',
+        theme: 'dark'
+    };
+
+    window.data = JSON.parse(localStorage.getItem('basic_notes_v7')) || JSON.parse(JSON.stringify(defaultData));
+
+    // --- ЛОГИКА АККАУНТА ---
     onAuthStateChanged(auth, (user) => {
         const btn = document.getElementById('authBtn');
         if (user) {
@@ -216,29 +410,16 @@
         } else {
             currentUser = null;
             if(btn) btn.innerText = "ВОЙТИ ЧЕРЕЗ GOOGLE";
+            window.data = JSON.parse(JSON.stringify(defaultData)); // Сброс при выходе
             window.render();
         }
     });
 
     window.toggleAuth = function() {
-        if (currentUser) {
-            signOut(auth);
-        } else {
-            signInWithPopup(auth, provider).catch(e => alert("Ошибка: " + e.message));
-        }
+        if (currentUser) signOut(auth);
+        else signInWithPopup(auth, provider).catch(e => alert("Ошибка: " + e.message));
     };
 
-    // --- 3. ДАННЫЕ (window.data) ---
-    window.data = JSON.parse(localStorage.getItem('basic_notes_v7')) || {
-        playlists: [{id: 1, title: 'Моё'}],
-        notes: [],
-        currentPlaylistId: 1,
-        sortAsc: false,
-        lang: 'ru',
-        theme: 'dark'
-    };
-
-    // --- 8.2 Словари переводов ---
     const translations = {
         ru: {
             logo: "Basic Notes", welcome: "ПУСТО", placeholder: "ТЕКСТ...", searchPlaceholder: "Поиск...",
@@ -258,35 +439,28 @@
         }
     };
 
-    // --- 8.3 Системные функции (Firebase + LocalStorage) ---
-  window.save = async function() { 
-    localStorage.setItem('basic_notes_v7', JSON.stringify(window.data)); 
-    window.render(); 
-    
-    // Если пользователь вошел, сохраняем в его личную папку
-    if (currentUser) {
-        try {
-            await setDoc(doc(db, "users", currentUser.uid), window.data); // Заменили на currentUser.uid
-        } catch (e) { console.error("Cloud save failed:", e); }
+    window.save = async function() { 
+        localStorage.setItem('basic_notes_v7', JSON.stringify(window.data)); 
+        window.render(); 
+        if (currentUser) {
+            try { await setDoc(doc(db, "users", currentUser.uid), window.data); } 
+            catch (e) { console.error("Cloud save failed:", e); }
+        }
     }
-}
 
-    // Загрузка из Firebase при старте
     async function loadFromCloud() {
-    if (!currentUser) return; // Если не вошли, не грузим из облака
-
-    try {
-        const docSnap = await getDoc(doc(db, "users", currentUser.uid)); // Заменили на currentUser.uid
-        if (docSnap.exists()) {
-            window.data = docSnap.data();
+        if (!currentUser) return;
+        try {
+            const docSnap = await getDoc(doc(db, "users", currentUser.uid));
+            if (docSnap.exists()) {
+                window.data = docSnap.data();
+            } else {
+                window.data = JSON.parse(JSON.stringify(defaultData));
+            }
             window.render();
             window.setLanguage(window.data.lang);
-        } else {
-            // Если у нового пользователя еще нет данных в облаке, создаем чистый лист
-            console.log("Новый пользователь, данных в облаке нет");
-        }
-    } catch (e) { console.error("Cloud load failed:", e); }
-}
+        } catch (e) { console.error("Cloud load failed:", e); }
+    }
 
     window.setLanguage = function(lang) {
         window.data.lang = lang;
@@ -316,7 +490,6 @@
 
     window.setTheme = function(theme) { window.data.theme = theme; window.save(); }
 
-    // --- 8.4 Работа с файлами ---
     document.getElementById('attachFiles').addEventListener('change', function(e) {
         for (let file of e.target.files) {
             const reader = new FileReader();
@@ -340,37 +513,41 @@
         `).join('');
     }
 
-    // --- 8.5 Управление заметками ---
-   window.addNote = function() {
-    const el = document.getElementById('ui-textarea');
-    // Проверяем, есть ли текст или вложения
-    if(!el.value.trim() && !window.tempAttachments.length) return;
+    window.addNote = function() {
+        const el = document.getElementById('ui-textarea');
+        if(!el.value.trim() && !window.tempAttachments.length) return;
+        window.data.notes.push({ 
+            id: Date.now(), 
+            pid: window.data.currentPlaylistId, 
+            text: el.value, 
+            attachments: [...window.tempAttachments], 
+            pinned: false 
+        });
+        el.value = ''; 
+        window.tempAttachments = []; 
+        window.renderAttachmentsPreview(); 
+        window.save(); 
+    };
 
-    // Добавляем новую заметку в список
-    window.data.notes.push({ 
-        id: Date.now(), 
-        pid: window.data.currentPlaylistId, 
-        text: el.value, 
-        attachments: [...window.tempAttachments], 
-        pinned: false 
-    });
+    // --- ТА САМАЯ ФУНКЦИЯ РЕДАКТИРОВАНИЯ ---
+    window.editNote = function(id) {
+        const n = window.data.notes.find(x => x.id === id);
+        if(!n) return;
+        const el = document.getElementById('ui-textarea');
+        el.value = n.text;
+        window.tempAttachments = [...(n.attachments || [])];
+        window.renderAttachmentsPreview();
+        window.data.notes = window.data.notes.filter(x => x.id !== id); // Удаляем старую, чтобы сохранить новую
+        el.focus();
+        window.save();
+    };
 
-    // Очищаем поле ввода и вложения
-    el.value = ''; 
-    window.tempAttachments = []; 
-    window.renderAttachmentsPreview(); 
-    
-    // Сохраняем и обновляем экран
-    window.save(); 
-};
     window.togglePin = function(id) { const n = window.data.notes.find(x => x.id === id); if(n) n.pinned = !n.pinned; window.save(); }
 
-    // --- 8.6 Рендер интерфейса ---
     window.render = function() {
         document.body.className = 'theme-' + window.data.theme;
         const t = translations[window.data.lang];
         const searchText = document.getElementById('searchInput').value.toLowerCase();
-
         let filtered = window.data.notes.filter(n => n.pid === window.data.currentPlaylistId);
         if (searchText) filtered = filtered.filter(n => n.text.toLowerCase().includes(searchText));
         
@@ -384,18 +561,12 @@
             <button onclick="window.data.currentPlaylistId=${p.id}; window.save();" class="playlist-tab uppercase text-sm ${window.data.currentPlaylistId === p.id ? 'active' : ''}">${p.title}</button>
         `).join('');
 
-        setTimeout(() => {
-            const activeTab = document.querySelector('.playlist-tab.active');
-            if (activeTab) activeTab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-        }, 100);
-
         document.getElementById('ui-counter').innerText = filtered.length;
-
         const list = document.getElementById('notesList');
         if(!filtered.length) {
             list.innerHTML = `<div class="col-span-full h-40 flex items-center justify-center opacity-40 font-black uppercase text-4xl">${t.welcome}</div>`;
         } else {
-            list.innerHTML = filtered.map((n, i) => {
+            list.innerHTML = filtered.map((n) => {
                 let allMedia = n.attachments || [];
                 let mediaHtml = '';
                 if (allMedia.length > 0) {
@@ -430,7 +601,6 @@
         `).join('');
     }
 
-    // --- 8.7 Функции управления окнами ---
     window.openNote = function(id) { 
         const n = window.data.notes.find(x => x.id === id);
         let html = `<p class="text-2xl font-black mb-6 whitespace-pre-wrap">${n.text}</p>`;
@@ -448,7 +618,6 @@
     window.toggleContact = function() { document.getElementById('contactScreen').classList.toggle('active'); }
     window.sortNotes = function() { window.data.sortAsc = !window.data.sortAsc; window.save(); }
 
-    // --- 8.8 Логика диалоговых окон ---
     window.showDialog = function(type, id = null) {
         const t = translations[window.data.lang];
         const m = document.getElementById('customDialog');
@@ -473,10 +642,10 @@
     }
     window.closeDialog = function() { document.getElementById('customDialog').classList.remove('active'); }
 
-    // Запуск приложения
-    loadFromCloud(); // Пытаемся взять данные из Firebase
     window.setLanguage(window.data.lang);
     window.render();
 </script>
+
 </body>
+
 </html>
