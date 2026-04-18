@@ -44,7 +44,9 @@
 
         /* Боковое меню (Drawer) */
         .mint-menu { background-color: var(--brand-yellow); color: #000; transition: 0.4s; left: 0; transform: translateX(-100%); }
-        .drawer-open { transform: translateX(0) !important; }
+        .drawer-open { transform: translateX(0) !important; 
+            
+        }
 
         /* Элементы управления и текстовое поле */
         .header-btn { font-size: 10px; font-weight: 900; border: 2px solid var(--card-border); padding: 5px 10px; border-radius: 6px; text-transform: uppercase; color: var(--text); }
@@ -113,23 +115,30 @@
         </div>
     </footer>
 
-    <div id="menu" class="fixed top-0 h-full w-80 mint-menu z-50 p-10 flex flex-col shadow-2xl">
-        <div class="flex justify-between items-center mb-12 text-black font-black">
-            <h3 id="ui-menu-title" class="text-3xl uppercase">МЕНЮ</h3>
-            <button onclick="toggleMenu()" class="text-4xl">✕</button>
+  <div id="menu" class="fixed top-0 h-full w-80 mint-menu z-50 p-10 flex flex-col shadow-2xl">
+    <div class="flex justify-between items-center mb-12 text-black font-black">
+        <h3 id="ui-menu-title" class="text-3xl uppercase">МЕНЮ</h3>
+        <button onclick="toggleMenu()" class="text-4xl">✕</button>
+    </div>
+
+    <button id="authBtn" onclick="window.toggleAuth()" class="w-full py-4 mb-8 rounded-2xl bg-black text-[#ffff00] font-black uppercase text-xs border-2 border-black/10 shadow-lg active:scale-95 transition-transform">
+        Войти через Google
+    </button>
+
+    <nav class="flex-1 space-y-8 font-black text-2xl uppercase overflow-y-auto no-scrollbar text-black">
+        <div>
+            <p id="ui-playlist-label" class="text-xs mb-4 opacity-70">Playlists</p>
+            <div id="menuPlaylists" class="space-y-4"></div>
+            <button onclick="showDialog('playlist')" id="ui-add-playlist" class="mt-6 text-sm border-4 border-black px-6 py-2 rounded-xl active:bg-black active:text-white transition-colors">+ NEW</button>
         </div>
-        <nav class="flex-1 space-y-8 font-black text-2xl uppercase overflow-y-auto no-scrollbar text-black">
-            <div>
-                <p id="ui-playlist-label" class="text-xs mb-4 opacity-70">Playlists</p>
-                <div id="menuPlaylists" class="space-y-4"></div>
-                <button onclick="showDialog('playlist')" id="ui-add-playlist" class="mt-6 text-sm border-4 border-black px-6 py-2 rounded-xl active:bg-black active:text-white transition-colors">+ NEW</button>
-            </div>
-            <button onclick="toggleSettings()" id="ui-btn-settings-menu" class="w-full text-left py-3 border-b-4 border-black/20">Settings</button>
-        </nav>
-        <div class="mt-auto pt-6 flex justify-between items-center text-sm font-black text-black">
-            <div>v 3.0.2</div>
-            <button onclick="toggleContact()" id="ui-btn-team" class="bg-black text-white px-6 py-3 rounded-full">TEAM</button>
-        </div>
+        <button onclick="toggleSettings()" id="ui-btn-settings-menu" class="w-full text-left py-3 border-b-4 border-black/20">Settings</button>
+    </nav>
+
+    <div class="mt-auto pt-6 flex justify-between items-center text-sm font-black text-black">
+        <div>v 3.0.2</div>
+        <button onclick="toggleContact()" id="ui-btn-team" class="bg-black text-white px-6 py-3 rounded-full">TEAM</button>
+    </div>
+</div>
     </div>
 
     <div id="viewNoteModal" class="full-screen-modal">
@@ -174,9 +183,10 @@
     <div id="overlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/80 hidden z-40 backdrop-blur-md"></div>
 
 <script type="module">
-    // --- ИНИЦИАЛИЗАЦИЯ FIREBASE ---
+    // --- 1. ИНИЦИАЛИЗАЦИЯ FIREBASE ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAZ8eP0tmsIx5z5GKBuEI5-uHt-5YaQuVo",
@@ -190,8 +200,34 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
 
-    // --- 8.1 Инициализация данных ---
+    let currentUser = null;
+
+    // --- 2. ЛОГИКА АККАУНТА ---
+    onAuthStateChanged(auth, (user) => {
+        const btn = document.getElementById('authBtn');
+        if (user) {
+            currentUser = user;
+            if(btn) btn.innerText = `ВЫЙТИ (${user.displayName.split(' ')[0]})`;
+            loadFromCloud();
+        } else {
+            currentUser = null;
+            if(btn) btn.innerText = "ВОЙТИ ЧЕРЕЗ GOOGLE";
+            window.render();
+        }
+    });
+
+    window.toggleAuth = function() {
+        if (currentUser) {
+            signOut(auth);
+        } else {
+            signInWithPopup(auth, provider).catch(e => alert("Ошибка: " + e.message));
+        }
+    };
+
+    // --- 3. ДАННЫЕ (window.data) ---
     window.data = JSON.parse(localStorage.getItem('basic_notes_v7')) || {
         playlists: [{id: 1, title: 'Моё'}],
         notes: [],
@@ -200,8 +236,6 @@
         lang: 'ru',
         theme: 'dark'
     };
-
-    window.tempAttachments = []; 
 
     // --- 8.2 Словари переводов ---
     const translations = {
