@@ -259,26 +259,34 @@
     };
 
     // --- 8.3 Системные функции (Firebase + LocalStorage) ---
-    window.save = async function() { 
-        localStorage.setItem('basic_notes_v7', JSON.stringify(window.data)); 
-        window.render(); 
-        // Отправка в облако
+  window.save = async function() { 
+    localStorage.setItem('basic_notes_v7', JSON.stringify(window.data)); 
+    window.render(); 
+    
+    // Если пользователь вошел, сохраняем в его личную папку
+    if (currentUser) {
         try {
-            await setDoc(doc(db, "users", "default_user"), window.data);
+            await setDoc(doc(db, "users", currentUser.uid), window.data); // Заменили на currentUser.uid
         } catch (e) { console.error("Cloud save failed:", e); }
     }
+}
 
     // Загрузка из Firebase при старте
     async function loadFromCloud() {
-        try {
-            const docSnap = await getDoc(doc(db, "users", "default_user"));
-            if (docSnap.exists()) {
-                window.data = docSnap.data();
-                window.render();
-                window.setLanguage(window.data.lang);
-            }
-        } catch (e) { console.error("Cloud load failed:", e); }
-    }
+    if (!currentUser) return; // Если не вошли, не грузим из облака
+
+    try {
+        const docSnap = await getDoc(doc(db, "users", currentUser.uid)); // Заменили на currentUser.uid
+        if (docSnap.exists()) {
+            window.data = docSnap.data();
+            window.render();
+            window.setLanguage(window.data.lang);
+        } else {
+            // Если у нового пользователя еще нет данных в облаке, создаем чистый лист
+            console.log("Новый пользователь, данных в облаке нет");
+        }
+    } catch (e) { console.error("Cloud load failed:", e); }
+}
 
     window.setLanguage = function(lang) {
         window.data.lang = lang;
